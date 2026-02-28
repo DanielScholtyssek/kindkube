@@ -22,7 +22,7 @@ podman machine ssh
 
 # 2. Create cluster and install components
 kind create cluster --config kind/kind-config.yaml
-./install_bootstrap.sh
+./bootstrap/install_bootstrap.sh
 
 # 3. Configure MetalLB IP pool
 kubectl apply -f config/metallb/ip-pool.yaml
