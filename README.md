@@ -1,6 +1,17 @@
 # KindKube - Local Kubernetes Development with ArgoCD and MetalLB
 
-A complete local Kubernetes development environment using Kind with ArgoCD for GitOps and MetalLB for load balancing.
+A complete local Kubernetes development environment using Kind with ArgoCD for GitOps and MetalLB for load balancing. This setup is specifically designed for **Windows + WSL2 + Podman** environments.
+
+## 🏗️ Architecture
+
+This project runs on:
+- **Host**: Windows 11/10
+- **Virtualization**: WSL2 (Windows Subsystem for Linux)
+- **Container Runtime**: Podman Machine (QEMU-based VM)
+- **Kubernetes**: Kind (Kubernetes in Docker)
+- **Applications**: ArgoCD + MetalLB
+
+The stack addresses file descriptor limitations common in nested virtualization environments.
 
 ## 🚀 Quick Start
 
