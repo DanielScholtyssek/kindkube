@@ -1,20 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kindkube-apps
+  name: contour-helm
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-wave: "2"
     argocd.argoproj.io/auto-sync: "true"
 spec:
-  project: kindkube-apps-project
+  project: contour-project
   source:
-    repoURL: https://github.com/DanielScholtyssek/kindkube.git
+    repoURL: https://projectcontour.io/quickstart
     targetRevision: HEAD
-    path: apps
+    path: contour.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: projectcontour
   syncPolicy:
     automated:
       prune: true

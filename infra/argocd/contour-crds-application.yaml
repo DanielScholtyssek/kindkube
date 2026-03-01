@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kindkube-apps
+  name: contour-crds
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-wave: "1"
     argocd.argoproj.io/auto-sync: "true"
 spec:
-  project: kindkube-apps-project
+  project: contour-project
   source:
-    repoURL: https://github.com/DanielScholtyssek/kindkube.git
+    repoURL: https://raw.githubusercontent.com/projectcontour/contour/main
     targetRevision: HEAD
-    path: apps
+    path: examples/gateway/00-crds.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: default

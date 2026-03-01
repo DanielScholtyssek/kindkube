@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: contour-restart
+  namespace: projectcontour
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/hook: PostSync
+spec:
+  restartPolicy: OnFailure
+  containers:
+  - name: restart
+    image: bitnami/kubectl:latest
+    command:
+    - /bin/sh
+    - -c
+    - kubectl rollout restart deployment/contour -n projectcontour

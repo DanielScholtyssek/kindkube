@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: contour
+  namespace: projectcontour
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+data:
+  contour.yaml: |
+    gateway:
+      gatewayRef:
+        name: contour
+        namespace: projectcontour
