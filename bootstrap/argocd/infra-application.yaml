@@ -11,10 +11,9 @@ spec:
   source:
     repoURL: https://github.com/DanielScholtyssek/kindkube.git
     targetRevision: HEAD
-    path: infra
+    path: infra/argocd
     directory:
       recurse: true
-      include: "metallb-*|kindkube-*"
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
