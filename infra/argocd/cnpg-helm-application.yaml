@@ -14,7 +14,7 @@ spec:
     targetRevision: "0.27.1"  # Latest version
     helm:
       releaseName: cnpg
-      valuesObject: {}
+      valuesObject: {}  # Let Helm handle CRDs normally
   destination:
     server: https://kubernetes.default.svc
     namespace: cnpg-system
@@ -31,6 +31,7 @@ spec:
     syncOptions:
     - CreateNamespace=true
     - RespectIgnoreDifferences=true
+    - ServerSideApply=true  # Handle large resources better
     retry:
       limit: 3
       backoff:
