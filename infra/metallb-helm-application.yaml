@@ -13,8 +13,21 @@ spec:
     targetRevision: "*"
     helm:
       releaseName: metallb
-      valueFiles:
-      - ../metallb/values/helm-values.yaml
+      valuesObject:
+        namespace: metallb-system
+        namespaceLabels:
+          pod-security.kubernetes.io/enforce: privileged
+          pod-security.kubernetes.io/audit: privileged
+          pod-security.kubernetes.io/warn: privileged
+        speaker:
+          enabled: true
+        controller:
+          enabled: true
+        prometheus:
+          serviceMonitor:
+            enabled: false
+          rule:
+            enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: metallb-system
