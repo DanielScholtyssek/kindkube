@@ -118,9 +118,9 @@ kindkube/
 
 The Contour setup uses **dynamic provisioning** with the Gateway API:
 
-1. **Gateway Provisioner** (Wave 2): Installs Contour and Gateway API CRDs
-2. **Gateway Resources** (Wave 3): Creates GatewayClass and Gateway
-3. **Envoy Service** (Wave 3): LoadBalancer with MetalLB IP assignment
+1. **Gateway Provisioner** (Wave 4): Installs Contour and Gateway API CRDs
+2. **Gateway Resources** (Wave 5): Creates GatewayClass and Gateway
+3. **Envoy Service** (Wave 5): LoadBalancer with MetalLB IP assignment
 
 ### Access Points
 
@@ -195,12 +195,11 @@ spec:
 
 **MetalLB Not Assigning IPs**
 - Verify IP pool configuration in `infra/metallb/manifests/`
-- Check if MetalLB Helm chart is deployed (wave 1)
-- Ensure strictARP is enabled in kube-proxy
+- Check if MetalLB Helm chart is deployed (wave 2)
 
 **Contour Gateway Not Working**
-- Verify Gateway provisioner is deployed (wave 2)
-- Check Gateway resources are created (wave 3)
+- Verify Gateway provisioner is deployed (wave 4)
+- Check Gateway resources are created (wave 5)
 - Ensure Envoy service has LoadBalancer IP
 - Test with `curl http://10.89.0.200`
 
