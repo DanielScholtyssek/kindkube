@@ -34,3 +34,9 @@ spec:
         syncOptions:
         - CreateNamespace=true
         - RespectIgnoreDifferences=true
+        retry:
+          limit: 3
+          backoff:
+            duration: 2s
+            factor: 1.5
+            maxDuration: 30s

@@ -25,8 +25,8 @@ spec:
     - CreateNamespace=true
     - RespectIgnoreDifferences=true
     retry:
-      limit: 5
+      limit: 3
       backoff:
-        duration: 5s
-        factor: 2
-        maxDuration: 3m
+        duration: 2s
+        factor: 1.5
+        maxDuration: 30s
