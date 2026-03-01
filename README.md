@@ -39,7 +39,6 @@ kindkube/
 │   ├── install_bootstrap.sh      # Main installer
 │   └── argocd/
 │       ├── infra-application.yaml      # Infrastructure GitOps
-│       ├── apps-application.yaml       # User applications GitOps
 │       └── install_argocd.sh           # ArgoCD installer
 ├── infra/
 │   ├── argocd/
