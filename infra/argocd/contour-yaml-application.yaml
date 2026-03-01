@@ -1,10 +1,10 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: contour-installation
+  name: contour-gateway-provisioner
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "1"
     argocd.argoproj.io/auto-sync: "true"
 spec:
   project: contour-project
@@ -13,7 +13,7 @@ spec:
     targetRevision: HEAD
     path: infra/contour/manifests
     file:
-      path: contour.yaml
+      path: contour-gateway-provisioner.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: projectcontour
