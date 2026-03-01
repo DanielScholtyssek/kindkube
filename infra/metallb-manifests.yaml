@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/DanielScholtyssek/kindkube.git
     targetRevision: HEAD
-    path: infra/metallb-manifests
+    path: infra/metallb/manifests
     directory:
       recurse: true
   destination:
