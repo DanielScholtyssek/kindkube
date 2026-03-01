@@ -38,5 +38,5 @@ spec:
       limit: 3
       backoff:
         duration: 2s
-        factor: 1.5
+        factor: 1
         maxDuration: 30s
