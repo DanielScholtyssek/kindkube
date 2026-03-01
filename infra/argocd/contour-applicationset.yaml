@@ -38,6 +38,7 @@ spec:
             duration: 2s
             factor: 1
             maxDuration: 30s
+---
   - git:
       repoURL: https://github.com/DanielScholtyssek/kindkube.git
       revision: HEAD
