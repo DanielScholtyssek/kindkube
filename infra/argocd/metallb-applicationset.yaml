@@ -26,7 +26,7 @@ spec:
           recurse: true
       destination:
         server: https://kubernetes.default.svc
-        namespace: default
+        namespace: metallb-system
       syncPolicy:
         automated:
           prune: true
