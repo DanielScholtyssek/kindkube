@@ -1,6 +1,6 @@
-# KindKube - Local Kubernetes Development with ArgoCD, MetalLB, Contour & cert-manager
+# KindKube - Local Kubernetes Development with ArgoCD, MetalLB, Contour, cert-manager & CloudNativePG
 
-A complete local Kubernetes development environment using Kind with ArgoCD for GitOps, MetalLB for load balancing, Contour for ingress/Gateway API, and cert-manager for certificate management. This setup is specifically designed for **Windows + WSL2 + Podman** environments.
+A complete local Kubernetes development environment using Kind with ArgoCD for GitOps, MetalLB for load balancing, Contour for ingress/Gateway API, cert-manager for certificate management, and CloudNativePG for PostgreSQL. This setup is specifically designed for **Windows + WSL2 + Podman** environments.
 
 ## 🏗️ Architecture
 
@@ -9,7 +9,7 @@ This project runs on:
 - **Virtualization**: WSL2 (Windows Subsystem for Linux)
 - **Container Runtime**: Podman Machine (QEMU-based VM)
 - **Kubernetes**: Kind (Kubernetes in Docker)
-- **Applications**: ArgoCD + MetalLB + Contour + cert-manager
+- **Applications**: ArgoCD + MetalLB + Contour + cert-manager + CloudNativePG
 
 The stack addresses file descriptor limitations common in nested virtualization environments.
 
@@ -50,6 +50,8 @@ kindkube/
 │   │   ├── metallb-applicationset.yaml    # MetalLB manifests deployment
 │   │   ├── cert-manager-project.yaml       # cert-manager project
 │   │   ├── cert-manager-helm-application.yaml # cert-manager Helm deployment
+│   │   ├── cnpg-project.yaml               # CloudNativePG project
+│   │   ├── cnpg-helm-application.yaml      # CloudNativePG Helm deployment
 │   │   └── kindkube-apps-applicationset.yaml # User apps deployment
 │   ├── contour/
 │   │   ├── provisioner/
@@ -77,6 +79,8 @@ kindkube/
 - **[MetalLB Documentation](https://metallb.universe.tf/)** - Load balancer for bare metal
 - **[Contour Documentation](https://projectcontour.io/)** - Ingress controller with Gateway API support
 - **[cert-manager Documentation](https://cert-manager.io/)** - X.509 certificate management for Kubernetes
+- **[CloudNativePG Documentation](https://cloudnative-pg.io/)** - PostgreSQL operator for Kubernetes
+- **[CloudNativePG Website](https://cloudnative-pg.io/)** - Official project website
 
 ### Project-Specific Documentation
 - `kind/README.md` - Detailed Kind setup and troubleshooting
@@ -106,7 +110,10 @@ kindkube/
 **Wave 6** - cert-manager:
 - `cert-manager-helm` - cert-manager installation via Helm chart
 
-**Wave 7** - Applications:
+**Wave 7** - CloudNativePG:
+- `cloudnative-pg` - CloudNativePG PostgreSQL operator
+
+**Wave 8** - Applications:
 - `kindkube-apps` - Your applications
 
 ### What Each Application Does
@@ -114,6 +121,7 @@ kindkube/
 - **`kindkube-infra`**: Deploys infrastructure components from `infra/argocd/`
 - **`metallb-helm`**: Deploys MetalLB using official Helm chart
 - **`cert-manager-helm`**: Deploys cert-manager using official Helm chart
+- **`cloudnative-pg`**: Deploys CloudNativePG PostgreSQL operator
 - **`metallb-manifests`**: Deploys MetalLB IP pool and L2 advertisement
 - **`contour-provisioner`**: Deploys Contour Gateway provisioner with all CRDs
 - **`contour-manifests`**: Deploys GatewayClass, Gateway, and Envoy service patch
@@ -186,7 +194,40 @@ spec:
           class: contour
 ```
 
-## 🛠️ Development Workflow
+## 🐘 CloudNativePG Setup
+
+### Architecture
+
+CloudNativePG PostgreSQL operator is deployed via Helm:
+
+1. **CloudNativePG Operator** (Wave 7): Installs PostgreSQL operator with CRDs
+2. **Operator Features**: Manages PostgreSQL clusters, backups, and high availability
+
+### Installation
+
+The CloudNativePG operator is installed using the official Helm chart:
+- **Chart**: `cloudnative-pg` from `https://cloudnative-pg.github.io/charts`
+- **Version**: `0.27.1` (latest)
+- **Namespace**: `cnpg-system`
+- **CRDs**: Automatically installed with the operator
+
+### Documentation
+
+For complete usage examples and configuration options, see the official documentation:
+- **[CloudNativePG Documentation](https://cloudnative-pg.io/)** - Complete operator documentation
+- **[CloudNativePG Charts](https://github.com/cloudnative-pg/charts?tab=readme-ov-file)** - Helm chart documentation and examples
+
+### Quick Start
+
+```bash
+# Check CloudNativePG operator
+kubectl get pods -n cnpg-system
+
+# Verify CRDs are installed
+kubectl get crd | grep postgresql.cnpg.io
+```
+
+## ��️ Development Workflow
 
 ### GitOps Setup
 
