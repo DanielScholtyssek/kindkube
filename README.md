@@ -16,70 +16,46 @@ The stack addresses file descriptor limitations common in nested virtualization 
 ## 🚀 Quick Start
 
 ```bash
-# 1. Setup Podman machine limits (required for ArgoCD/MetalLB)
-podman machine ssh
-# Follow the steps in kind/README.md Option 1
+# 1. Clone the repository
+git clone https://github.com/DanielScholtyssek/kindkube.git
+cd kindkube
 
-# 2. Create cluster and install components
-kind create cluster --config kind/kind-config.yaml
+# 2. Configure Podman machine limits (see kind/README.md)
+# 3. Run the bootstrap script
 ./bootstrap/install_bootstrap.sh
 
-# 3. Configure MetalLB IP pool
-kubectl apply -f config/metallb/ip-pool.yaml
-kubectl apply -f config/metallb/l2-advertisement.yaml
+# 4. Access ArgoCD UI
+kubectl port-forward svc/argocd-server -n argocd 8080:443
 ```
 
 ## 📁 Project Structure
 
 ```
 kindkube/
-├── kind/                    # Kind cluster configuration
-│   ├── kind-config.yaml     # Cluster config with file limits
-│   └── README.md           # Detailed setup instructions
-├── bootstrap/              # Installation scripts
-│   ├── install_bootstrap.sh # Main installer
-│   ├── install_argocd.sh   # ArgoCD installer
-│   └── install_metallb.sh  # MetalLB installer
-├── config/                 # Application configurations
-│   └── metallb/           # MetalLB IP pool and L2 advertisement
-└── apps/                  # Application manifests (for future use)
+├── bootstrap/
+│   ├── install_bootstrap.sh      # Main installer
+│   └── argocd/
+│       ├── infra-application.yaml      # Infrastructure GitOps
+│       ├── apps-application.yaml       # User applications GitOps
+│       └── install_argocd.sh           # ArgoCD installer
+├── infra/
+│   ├── metallb-helm-application.yaml     # MetalLB Helm GitOps
+│   ├── metallb-manifests.yaml           # MetalLB manifests GitOps
+│   └── metallb/
+│       ├── manifests/                   # MetalLB configurations
+│       └── values/
+│           └── helm-values.yaml        # Helm chart values
+├── apps/                               # Your applications
+├── kind/
+│   ├── kind-config.yaml                # Kind cluster configuration
+│   └── README.md                       # Kind setup guide
+└── README.md                          # This file
 ```
-
-## 🔧 Components
-
-### ArgoCD
-- **Version**: Latest stable
-- **Namespace**: `argocd`
-- **Purpose**: GitOps continuous delivery
-- **Configuration**: Default with GPG disabled for local development
-
-### MetalLB
-- **Version**: v0.15.3
-- **Namespace**: `metallb-system`
-- **IP Range**: `192.168.178.100-192.168.178.120`
-- **Mode**: Layer 2 advertisement
-
-### Kind
-- **Version**: Latest
-- **Nodes**: 1 control-plane + 3 workers
-- **File Limits**: Increased for ArgoCD/MetalLB compatibility
-
-## ⚙️ Configuration
-
-### File Descriptor Limits
-This project addresses the "too many open files" issue common with ArgoCD and MetalLB in Kind clusters. See `kind/README.md` for detailed solutions.
-
-### MetalLB IP Pool
-The default IP pool is configured for `192.168.178.100-192.168.178.120`. Modify `config/metallb/ip-pool.yaml` to change this range.
-
-### ArgoCD Access
-```bash
 # Get initial password
 kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
 
 # Port forward
 kubectl port-forward svc/argocd-server -n argocd 8080:443
-```
 
 ## 📚 Documentation
 
@@ -97,8 +73,52 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 
 1. **Cluster Setup**: Configure Kind with proper limits
 2. **Install Components**: Use bootstrap scripts for ArgoCD/MetalLB
-3. **Deploy Applications**: Add manifests to `apps/` directory
-4. **GitOps**: Configure ArgoCD to sync from your Git repository
+3. **Setup GitOps**: Configure ArgoCD to deploy from your repository
+4. **Deploy Applications**: Add manifests to `apps/` directory and push to GitHub
+
+### GitOps Setup
+
+1. **Apply the ArgoCD Applications**:
+```bash
+./bootstrap/install_bootstrap.sh
+```
+
+2. **Add applications to the `apps/` directory**:
+```bash
+# Add your Kubernetes manifests to apps/
+git add apps/
+git commit -m "Add new application"
+git push
+```
+
+3. **ArgoCD will automatically deploy** any manifests in the `apps/` directory
+
+## 🎯 ArgoCD Applications
+
+### Deployment Order (Sync Waves)
+
+**Wave 0** - Foundation:
+- `metallb-helm` - MetalLB installation via Helm chart
+- `kindkube-infra` - Infrastructure components
+
+**Wave 1** - Configuration:
+- `metallb-manifests` - MetalLB configuration (IP pool, L2 advertisement)
+
+**Wave 2** - Applications:
+- `kindkube-user-apps` - Your applications
+
+### What Each Application Does
+
+- **`kindkube-infra`**: Deploys infrastructure configurations from `infra/`
+- **`metallb-helm`**: Deploys MetalLB using official Helm chart
+- **`metallb-manifests`**: Deploys MetalLB IP pool and L2 advertisement
+- **`kindkube-user-apps`**: Deploys your applications from `apps/`
+
+## 📚 Official Documentation
+
+- **Kind**: https://kind.sigs.k8s.io/
+- **ArgoCD**: https://argo-cd.readthedocs.io/
+- **MetalLB**: https://metallb.universe.tf/
 
 ## 🔍 Troubleshooting
 
@@ -109,19 +129,34 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443
 - **Reference**: https://kind.sigs.k8s.io/docs/user/known-issues/#pod-errors-due-to-too-many-open-files
 - Cause: Default file limits too low for ArgoCD/MetalLB
 
-### Verification Commands
-```bash
-# Check pod status
-kubectl get pods -n argocd
-kubectl get pods -n metallb-system
+**ArgoCD Applications Not Syncing**
+- Check sync wave annotations
+- Verify Git repository access
+- Ensure proper folder structure
 
-# Check logs
-kubectl logs -n argocd deployment/argocd-repo-server
-kubectl logs -n metallb-system deployment/controller
+**MetalLB Not Assigning IPs**
+- Verify IP pool configuration in `infra/metallb/manifests/`
+- Check if MetalLB Helm chart is deployed (wave 0)
+- Ensure strictARP is enabled in kube-proxy
 
-# Test MetalLB
-kubectl expose deployment argocd-server -n argocd --type=LoadBalancer --port=8080
-```
+## 🔄 Development Workflow
+
+1. **Infrastructure Changes**: Add YAML files to `infra/`
+2. **MetalLB Configuration**: Update files in `infra/metallb/manifests/`
+3. **Application Development**: Add manifests to `apps/`
+4. **GitOps**: Commit and push - ArgoCD handles the rest
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test with `./bootstrap/install_bootstrap.sh`
+5. Submit a pull request
+
+## 📄 License
+
+This project is licensed under the MIT License.
 
 ## 🔗 Links
 

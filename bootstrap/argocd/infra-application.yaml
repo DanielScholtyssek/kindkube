@@ -1,16 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kindkube-user-apps
+  name: kindkube-infra
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: default
   source:
     repoURL: https://github.com/DanielScholtyssek/kindkube.git
     targetRevision: HEAD
-    path: apps
+    path: infra
   destination:
     server: https://kubernetes.default.svc
     namespace: default
