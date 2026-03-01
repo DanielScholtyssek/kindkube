@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: contour-applicationset
+  name: contour-manifests
   namespace: argocd
 spec:
   generators:
@@ -14,7 +14,7 @@ spec:
     metadata:
       name: 'contour-{{path.basename}}'
       annotations:
-        argocd.argoproj.io/sync-wave: "2"
+        argocd.argoproj.io/sync-wave: "3"
         argocd.argoproj.io/auto-sync: "true"
     spec:
       project: contour-project
@@ -22,8 +22,6 @@ spec:
         repoURL: https://github.com/DanielScholtyssek/kindkube.git
         targetRevision: HEAD
         path: '{{path}}'
-        directory:
-          recurse: true
       destination:
         server: https://kubernetes.default.svc
         namespace: projectcontour
