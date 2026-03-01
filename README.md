@@ -85,20 +85,22 @@ kindkube/
 
 ### Deployment Order (Sync Waves)
 
-**Wave 0** - Foundation:
+**Wave 1** - Foundation:
 - `kindkube-infra` - Infrastructure components (projects, applications)
 
-**Wave 1** - MetalLB:
+**Wave 2** - MetalLB:
 - `metallb-helm` - MetalLB installation via Helm chart
 
-**Wave 2** - Contour Provisioner:
-- `contour-provisioner` - Gateway provisioner with CRDs
-
-**Wave 3** - Contour & MetalLB Configuration:
-- `contour-manifests` - Gateway resources and Envoy service patch
+**Wave 3** - MetalLB Configuration:
 - `metallb-manifests` - MetalLB IP pool and L2 advertisement
 
-**Wave 5** - Applications:
+**Wave 4** - Contour Provisioner:
+- `contour-provisioner` - Gateway provisioner with CRDs
+
+**Wave 5** - Contour Configuration:
+- `contour-manifests` - Gateway resources and Envoy service patch
+
+**Wave 6** - Applications:
 - `kindkube-apps` - Your applications
 
 ### What Each Application Does
