@@ -1,17 +1,20 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: kindkube-user-apps
+  name: metallb-namespace
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/sync-wave: "1"
     argocd.argoproj.io/auto-sync: "true"
 spec:
   project: default
   source:
     repoURL: https://github.com/DanielScholtyssek/kindkube.git
     targetRevision: HEAD
-    path: apps
+    path: infra/metallb/manifests
+    directory:
+      recurse: true
+      include: "namespace.yaml"
   destination:
     server: https://kubernetes.default.svc
     namespace: default
