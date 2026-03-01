@@ -11,6 +11,11 @@ echo "Installing MetalLB..."
 # Add Helm repository (for local reference, ArgoCD will use the repo directly)
 echo "Adding MetalLB Helm repository..."
 helm repo add metallb https://metallb.github.io/metallb
+
+# Add CloudNativePG Helm repository
+echo "Adding CloudNativePG Helm repository..."
+helm repo add cnpg https://cloudnative-pg.github.io/charts
+
 helm repo update
 
 # Enable strictARP in kube-proxy (required for MetalLB)
