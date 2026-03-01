@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kindkube-apps-applicationset
+  namespace: argocd
+spec:
+  generators:
+  - git:
+      repoURL: https://github.com/DanielScholtyssek/kindkube.git
+      revision: HEAD
+      directories:
+      - path: apps
+  template:
+    metadata:
+      name: 'kindkube-app-{{path.basename}}'
+      annotations:
+        argocd.argoproj.io/sync-wave: "4"
+        argocd.argoproj.io/auto-sync: "true"
+    spec:
+      project: kindkube-apps-project
+      source:
+        repoURL: https://github.com/DanielScholtyssek/kindkube.git
+        targetRevision: HEAD
+        path: '{{path}}'
+        directory:
+          recurse: true
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+        - RespectIgnoreDifferences=true
+        retry:
+          limit: 5
+          backoff:
+            duration: 5s
+            factor: 2
+            maxDuration: 3m

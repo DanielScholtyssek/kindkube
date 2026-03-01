@@ -14,7 +14,7 @@ spec:
     path: infra
     directory:
       recurse: true
-      include: "metallb-*"
+      include: "metallb-*|kindkube-*"
   destination:
     server: https://kubernetes.default.svc
     namespace: default
