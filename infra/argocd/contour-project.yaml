@@ -6,8 +6,6 @@ metadata:
 spec:
   sourceRepos:
   - https://github.com/DanielScholtyssek/kindkube.git
-  - https://projectcontour.io/quickstart
-  - https://raw.githubusercontent.com/projectcontour/contour/main
   destinations:
   - namespace: projectcontour
     server: https://kubernetes.default.svc

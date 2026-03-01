@@ -9,9 +9,9 @@ metadata:
 spec:
   project: contour-project
   source:
-    repoURL: https://raw.githubusercontent.com/projectcontour/contour/main
+    repoURL: https://github.com/DanielScholtyssek/kindkube.git
     targetRevision: HEAD
-    path: examples/gateway/00-crds.yaml
+    path: infra/contour/manifests/gateway-crds.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: default

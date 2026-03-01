@@ -9,9 +9,9 @@ metadata:
 spec:
   project: contour-project
   source:
-    repoURL: https://projectcontour.io/quickstart
+    repoURL: https://github.com/DanielScholtyssek/kindkube.git
     targetRevision: HEAD
-    path: contour.yaml
+    path: infra/contour/manifests/contour.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: projectcontour
