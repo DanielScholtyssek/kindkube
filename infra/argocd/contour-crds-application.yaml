@@ -11,7 +11,9 @@ spec:
   source:
     repoURL: https://github.com/DanielScholtyssek/kindkube.git
     targetRevision: HEAD
-    path: infra/contour/manifests/gateway-crds.yaml
+    path: infra/contour/manifests
+    file:
+      path: gateway-crds.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: default
