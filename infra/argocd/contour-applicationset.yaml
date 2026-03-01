@@ -39,6 +39,13 @@ spec:
             factor: 1
             maxDuration: 30s
 ---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: contour-manifests
+  namespace: argocd
+spec:
+  generators:
   - git:
       repoURL: https://github.com/DanielScholtyssek/kindkube.git
       revision: HEAD
