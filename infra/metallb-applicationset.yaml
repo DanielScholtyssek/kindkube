@@ -3,23 +3,9 @@ kind: ApplicationSet
 metadata:
   name: metallb-applicationset
   namespace: argocd
-  annotations:
-    argocd.argoproj.io/sync-wave: "2"
-    argocd.argoproj.io/auto-sync: "true"
 spec:
   project: metallb-project
   generators:
-  # Generator 1: MetalLB Helm Chart
-  - list:
-      elements:
-      - name: metallb-helm
-        syncWave: "2"
-        repoURL: https://metallb.github.io/metallb
-        chart: metallb
-        targetRevision: "*"
-        releaseName: metallb
-        namespace: metallb-system
-  # Generator 2: MetalLB Manifests
   - git:
       repoURL: https://github.com/DanielScholtyssek/kindkube.git
       revision: HEAD
@@ -27,34 +13,21 @@ spec:
       - path: infra/metallb/manifests
   template:
     metadata:
-      name: '{{path.basename}}-{{name}}'
+      name: 'metallb-{{path.basename}}'
       annotations:
-        argocd.argoproj.io/sync-wave: '{{syncWave}}'
+        argocd.argoproj.io/sync-wave: "3"
         argocd.argoproj.io/auto-sync: "true"
     spec:
       project: metallb-project
       source:
-        repoURL: '{{repoURL}}'
-        targetRevision: '{{targetRevision}}'
-        chart: '{{chart}}'
+        repoURL: https://github.com/DanielScholtyssek/kindkube.git
+        targetRevision: HEAD
         path: '{{path}}'
-        helm:
-          releaseName: '{{releaseName}}'
-          valuesObject:
-            speaker:
-              enabled: true
-            controller:
-              enabled: true
-            prometheus:
-              serviceMonitor:
-                enabled: false
-              rule:
-                enabled: false
         directory:
           recurse: true
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{namespace}}'
+        namespace: default
       syncPolicy:
         automated:
           prune: true
