@@ -4,7 +4,7 @@ metadata:
   name: contour-gateway-provisioner
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/sync-wave: "2"
     argocd.argoproj.io/auto-sync: "true"
 spec:
   project: contour-project
