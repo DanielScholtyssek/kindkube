@@ -1,6 +1,6 @@
-# KindKube - Local Kubernetes Development with ArgoCD, MetalLB & Contour
+# KindKube - Local Kubernetes Development with ArgoCD, MetalLB, Contour & cert-manager
 
-A complete local Kubernetes development environment using Kind with ArgoCD for GitOps, MetalLB for load balancing, and Contour for ingress/Gateway API. This setup is specifically designed for **Windows + WSL2 + Podman** environments.
+A complete local Kubernetes development environment using Kind with ArgoCD for GitOps, MetalLB for load balancing, Contour for ingress/Gateway API, and cert-manager for certificate management. This setup is specifically designed for **Windows + WSL2 + Podman** environments.
 
 ## 🏗️ Architecture
 
@@ -9,7 +9,7 @@ This project runs on:
 - **Virtualization**: WSL2 (Windows Subsystem for Linux)
 - **Container Runtime**: Podman Machine (QEMU-based VM)
 - **Kubernetes**: Kind (Kubernetes in Docker)
-- **Applications**: ArgoCD + MetalLB + Contour
+- **Applications**: ArgoCD + MetalLB + Contour + cert-manager
 
 The stack addresses file descriptor limitations common in nested virtualization environments.
 
@@ -48,6 +48,8 @@ kindkube/
 │   │   ├── metallb-project.yaml           # MetalLB project
 │   │   ├── metallb-helm-application.yaml   # MetalLB Helm deployment
 │   │   ├── metallb-applicationset.yaml    # MetalLB manifests deployment
+│   │   ├── cert-manager-project.yaml       # cert-manager project
+│   │   ├── cert-manager-helm-application.yaml # cert-manager Helm deployment
 │   │   └── kindkube-apps-applicationset.yaml # User apps deployment
 │   ├── contour/
 │   │   ├── provisioner/
@@ -74,6 +76,7 @@ kindkube/
 - **[ArgoCD Documentation](https://argo-cd.readthedocs.io/)** - Declarative GitOps CD
 - **[MetalLB Documentation](https://metallb.universe.tf/)** - Load balancer for bare metal
 - **[Contour Documentation](https://projectcontour.io/)** - Ingress controller with Gateway API support
+- **[cert-manager Documentation](https://cert-manager.io/)** - X.509 certificate management for Kubernetes
 
 ### Project-Specific Documentation
 - `kind/README.md` - Detailed Kind setup and troubleshooting
@@ -100,13 +103,17 @@ kindkube/
 **Wave 5** - Contour Configuration:
 - `contour-manifests` - Gateway resources and Envoy service patch
 
-**Wave 6** - Applications:
+**Wave 6** - cert-manager:
+- `cert-manager-helm` - cert-manager installation via Helm chart
+
+**Wave 7** - Applications:
 - `kindkube-apps` - Your applications
 
 ### What Each Application Does
 
 - **`kindkube-infra`**: Deploys infrastructure components from `infra/argocd/`
 - **`metallb-helm`**: Deploys MetalLB using official Helm chart
+- **`cert-manager-helm`**: Deploys cert-manager using official Helm chart
 - **`metallb-manifests`**: Deploys MetalLB IP pool and L2 advertisement
 - **`contour-provisioner`**: Deploys Contour Gateway provisioner with all CRDs
 - **`contour-manifests`**: Deploys GatewayClass, Gateway, and Envoy service patch
@@ -134,6 +141,50 @@ The Envoy service is automatically patched to:
 - **IP Assignment**: `10.89.0.200` from `default-pool`
 - **Annotations**: MetalLB-specific configuration
 - **Labels**: IP sharing enabled
+
+## 🔐 cert-manager Setup
+
+### Architecture
+
+cert-manager provides automatic X.509 certificate management:
+
+1. **cert-manager Helm** (Wave 6): Installs cert-manager with CRDs
+2. **Certificate Resources**: Creates Issuers and Certificates
+3. **ACME Integration**: Automatically obtains certificates from Let's Encrypt
+
+### Features
+
+- **Automatic Certificate Management**: Issues and renews certificates
+- **ACME Protocol**: Integration with Let's Encrypt and other ACME providers
+- **Multiple Issuer Types**: Self-signed, CA, ACME, Vault, etc.
+- **Certificate Resources**: Native Kubernetes Certificate resources
+- **Ingress Integration**: Works with Contour and other ingress controllers
+
+### Certificate Types
+
+- **ClusterIssuer**: Cluster-wide certificate issuer
+- **Issuer**: Namespace-scoped certificate issuer
+- **Certificate**: Certificate request and management
+- **CertificateRequest**: Low-level certificate request
+
+### Usage Example
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-staging
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: your-email@example.com
+    privateKeySecretRef:
+      name: letsencrypt-staging
+    solvers:
+    - http01:
+        ingress:
+          class: contour
+```
 
 ## 🛠️ Development Workflow
 
@@ -195,13 +246,20 @@ spec:
 
 **MetalLB Not Assigning IPs**
 - Verify IP pool configuration in `infra/metallb/manifests/`
-- Check if MetalLB Helm chart is deployed (wave 2)
+- Check if MetalLB Helm chart is deployed (wave 3)
 
 **Contour Gateway Not Working**
 - Verify Gateway provisioner is deployed (wave 4)
 - Check Gateway resources are created (wave 5)
 - Ensure Envoy service has LoadBalancer IP
 - Test with `curl http://10.89.0.200`
+
+**cert-manager Not Working**
+- Verify cert-manager is deployed (wave 6)
+- Check CRDs are installed: `kubectl get crd | grep cert-manager`
+- Check pod status: `kubectl get pods -n cert-manager`
+- Verify webhook configuration: `kubectl get validatingwebhookconfigurations`
+- Check leader election resources in kube-system namespace
 
 **CRD OutOfSync Issues**
 - Gateway provisioner modifies CRDs after deployment
@@ -238,13 +296,38 @@ kubectl get svc envoy-contour -n projectcontour -o yaml
 curl -v http://10.89.0.200
 ```
 
+**cert-manager Debugging**:
+```bash
+# Check cert-manager pods
+kubectl get pods -n cert-manager
+
+# Check CRDs
+kubectl get crd | grep cert-manager
+
+# Check certificate resources
+kubectl get certificates -A
+kubectl get issuers -A
+kubectl get clusterissuers
+
+# Check webhook status
+kubectl get validatingwebhookconfigurations cert-manager-webhook
+kubectl get mutatingwebhookconfigurations cert-manager-webhook
+
+# Check leader election resources
+kubectl get roles,rolebindings -n kube-system | grep cert-manager
+
+# Check certificate requests
+kubectl get certificaterequests -A
+```
+
 ## 🔄 Development Workflow
 
 1. **Infrastructure Changes**: Add YAML files to `infra/`
 2. **MetalLB Configuration**: Update files in `infra/metallb/manifests/`
 3. **Contour Configuration**: Update Gateway resources in `infra/contour/manifests/`
-4. **Application Development**: Add manifests to `apps/`
-5. **GitOps**: Commit and push - ArgoCD handles the rest
+4. **cert-manager Configuration**: Add Issuers and Certificates
+5. **Application Development**: Add manifests to `apps/`
+6. **GitOps**: Commit and push - ArgoCD handles the rest
 
 ## 🤝 Contributing
 
@@ -264,3 +347,4 @@ This project is licensed under the MIT License.
 - [ArgoCD GitHub](https://github.com/argoproj/argo-cd)
 - [MetalLB GitHub](https://github.com/metallb/metallb)
 - [Contour GitHub](https://github.com/projectcontour/contour)
+- [cert-manager GitHub](https://github.com/cert-manager/cert-manager)

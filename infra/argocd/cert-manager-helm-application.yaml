@@ -4,7 +4,7 @@ metadata:
   name: cert-manager-helm
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "2"
+    argocd.argoproj.io/sync-wave: "7"
     argocd.argoproj.io/auto-sync: "true"
 spec:
   project: cert-manager-project
