@@ -32,6 +32,12 @@ spec:
         syncOptions:
         - CreateNamespace=true
         - RespectIgnoreDifferences=true
+        - IgnoreExtraneousAttributes=true
+        ignoreDifferences:
+        - group: apiextensions.k8s.io
+          kind: CustomResourceDefinition
+          jsonPointers:
+          - /spec
         retry:
           limit: 3
           backoff:
@@ -73,6 +79,7 @@ spec:
         syncOptions:
         - CreateNamespace=true
         - RespectIgnoreDifferences=true
+        - IgnoreExtraneousAttributes=true
         retry:
           limit: 3
           backoff:
