@@ -26,8 +26,6 @@ echo "Installing ArgoCD..."
 # Setup ArgoCD GitOps for this repository
 echo "Setting up ArgoCD GitOps..."
 kubectl apply -f argocd/infra-application.yaml
-kubectl apply -f ../infra/metallb-helm-application.yaml
-kubectl apply -f ../infra/metallb-manifests.yaml
 kubectl apply -f argocd/apps-application.yaml
 
 echo "Bootstrap components installed successfully!"

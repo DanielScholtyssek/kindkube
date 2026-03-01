@@ -12,6 +12,9 @@ spec:
     repoURL: https://github.com/DanielScholtyssek/kindkube.git
     targetRevision: HEAD
     path: infra
+    directory:
+      recurse: true
+      include: "metallb-*"
   destination:
     server: https://kubernetes.default.svc
     namespace: default
