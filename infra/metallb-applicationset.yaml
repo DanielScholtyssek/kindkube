@@ -4,7 +4,6 @@ metadata:
   name: metallb-applicationset
   namespace: argocd
 spec:
-  project: metallb-project
   generators:
   - git:
       repoURL: https://github.com/DanielScholtyssek/kindkube.git
