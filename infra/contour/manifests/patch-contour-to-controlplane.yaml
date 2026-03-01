@@ -5,7 +5,15 @@ metadata:
   name: contour
   namespace: projectcontour
 spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: contour
+      app.kubernetes.io/component: control-plane
   template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: contour
+        app.kubernetes.io/component: control-plane
     spec:
       nodeSelector:
         kubernetes.io/role: control-plane
@@ -13,6 +21,15 @@ spec:
       - key: node-role.kubernetes.io/control-plane
         operator: Exists
         effect: NoSchedule
+      containers:
+      - name: contour
+        image: ghcr.io/projectcontour/contour:v1.33.2
+        command: ["contour"]
+        args:
+        - serve
+        - --incluster
+        - --xds-address=0.0.0.0
+        - --xds-port=8001
 ---
 # Patch Envoy DaemonSet to run on control-plane node only  
 apiVersion: apps/v1
@@ -21,7 +38,13 @@ metadata:
   name: envoy-contour
   namespace: projectcontour
 spec:
+  selector:
+    matchLabels:
+      app: envoy-contour
   template:
+    metadata:
+      labels:
+        app: envoy-contour
     spec:
       nodeSelector:
         kubernetes.io/role: control-plane
@@ -29,3 +52,6 @@ spec:
       - key: node-role.kubernetes.io/control-plane
         operator: Exists
         effect: NoSchedule
+      containers:
+      - name: envoy
+        image: ghcr.io/projectcontour/envoy:v1.33.2

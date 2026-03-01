@@ -1,0 +1,15 @@
+# Strategic merge patch to add nodeSelector to existing Contour deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: contour
+  namespace: projectcontour
+spec:
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/role: control-plane
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
